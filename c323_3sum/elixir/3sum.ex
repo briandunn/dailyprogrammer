@@ -1,8 +1,8 @@
 defmodule ThreeSum do
   def find_answers(list) do
     combinations(list, 3)
-    |> Enum.filter(fn(combination) ->
-      Enum.reduce(combination, 0, &(&1 + &2)) == 0
+    |> Enum.filter(fn([a,b,c]) ->
+      a + b + c == 0
     end)
   end
 
