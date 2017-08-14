@@ -15,7 +15,9 @@ defmodule ThreeSum do
   end
 
   def printf(answers) do
-    Enum.each(answers, fn(answer)-> IO.puts Enum.join(answer, " ") end)
+    for answer <- answers do
+      IO.puts Enum.join(answer, " ")
+    end
     IO.puts("")
   end
 
@@ -29,17 +31,15 @@ defmodule ThreeSum do
     end) ++ combinations(tail, size)
   end
 
-  def process_line do
-    case IO.read(:line) do
-      :eof -> nil
-      line -> line
-              |> split_ints
-              |> find_answers
-              |> Enum.uniq
-              |> printf
-              process_line()
+  def go do
+    for line <- IO.stream(:stdio, :line) do
+      line
+      |> split_ints
+      |> find_answers
+      |> Enum.uniq
+      |> printf
     end
   end
 end
 
-ThreeSum.process_line
+ThreeSum.go
