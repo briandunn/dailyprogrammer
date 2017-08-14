@@ -1,23 +1,9 @@
 defmodule ThreeSum do
-
   def find_answers(list) do
-    {:ok, agent} = Agent.start_link fn -> MapSet.new end
-    count = list |> Enum.count
-    for i <- 0..count do
-      for j <-(i + 1)..count do
-        for k <- (j + 1)..count do
-          candidate = Enum.map([i,j,k], &(Enum.at(list, &1))) |> Enum.filter(&(&1))
-          if Enum.count(candidate) == 3 && Enum.reduce(candidate, 0, &(&1 + &2)) == 0 do
-            Agent.update(agent, fn(set) ->
-              MapSet.put set, candidate
-            end)
-          end
-        end
-      end
-    end
-    answers = Agent.get(agent, &(&1))
-    Agent.stop(agent, :normal)
-    answers
+    combinations(list, 3)
+    |> Enum.filter(fn(combination) ->
+      Enum.reduce(combination, 0, &(&1 + &2)) == 0
+    end)
   end
 
   def split_ints(line) do
@@ -33,12 +19,23 @@ defmodule ThreeSum do
     IO.puts("")
   end
 
+  def combinations(_, 0), do: [[]]
+
+  def combinations([], _), do: []
+
+  def combinations([ head | tail ], size) do
+    (for combination <- combinations(tail, size - 1) do
+       [ head | combination ]
+    end) ++ combinations(tail, size)
+  end
+
   def process_line do
     case IO.read(:line) do
       :eof -> nil
       line -> line
               |> split_ints
               |> find_answers
+              |> Enum.uniq
               |> printf
               process_line()
     end
