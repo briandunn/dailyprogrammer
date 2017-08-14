@@ -6,19 +6,14 @@ defmodule ThreeSum do
     end)
   end
 
-  def split_ints(line) do
+  def process_line(line) do
     line
     |> String.trim_trailing
     |> String.split(" ", trim: true)
     |> Enum.map(&String.to_integer/1)
     |> Enum.sort
-  end
-
-  def printf(answers) do
-    for answer <- answers do
-      IO.puts Enum.join(answer, " ")
-    end
-    IO.puts("")
+    |> find_answers
+    |> Enum.uniq
   end
 
   def combinations(_, 0), do: [[]]
@@ -31,14 +26,20 @@ defmodule ThreeSum do
     end) ++ combinations(tail, size)
   end
 
-  def go do
-    for line <- IO.stream(:stdio, :line) do
-      line
-      |> split_ints
-      |> find_answers
-      |> Enum.uniq
-      |> printf
+  def printf(answers) do
+    for answer <- answers do
+      answer
+      |> Enum.join(" ")
+      |> IO.puts
     end
+    IO.puts("")
+  end
+
+  def go do
+    IO.stream(:stdio, :line)
+    |> Task.async_stream(&process_line/1)
+    |> Stream.each(fn ({:ok, answers}) -> printf(answers) end)
+    |> Enum.to_list
   end
 end
 
